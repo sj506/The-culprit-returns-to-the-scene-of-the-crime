@@ -21,17 +21,18 @@ aside .panel+ .panel{margin-top:18px}aside h2{font-size:15px}ul.entries{list-sty
 dialog{background:#17252e;color:var(--text);border:1px solid #526671;border-radius:14px;width:min(720px,94vw);max-height:85vh;padding:26px}dialog::backdrop{background:#000b}dialog h3{margin-top:26px;font-size:17px}dialog p,dialog li{font-size:14px;color:#c4ced0}dialog table{width:100%;border-collapse:collapse;font-size:13px}dialog td,dialog th{border-bottom:1px solid var(--line);padding:9px;text-align:left}.dialoghead{display:flex;justify-content:space-between;gap:12px;align-items:center}
 @media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}aside{display:grid;grid-template-columns:1fr 1fr;gap:18px}aside .panel+.panel{margin:0}.hand{grid-template-columns:repeat(5,minmax(0,1fr))}.card{max-width:none}}
 @media(max-width:600px){header{padding:16px;align-items:flex-start}.brand{font-size:14px}.toolbar{gap:5px}.toolbar button{padding:7px 9px;font-size:12px}main{padding:16px}.panel{padding:14px}.center{padding:18px 0}.card{min-height:113px;padding:22px 3px 8px}.card strong{font-size:12px}.card small{font-size:8px}.sigil{font-size:25px}#opponent .card{min-height:87px}.hand{gap:6px}.secrets{gap:7px}.secret{min-height:74px;padding:4px}.topline{font-size:11px}aside{grid-template-columns:1fr}h2{font-size:20px}.hero{padding-top:35px}.hero h1{letter-spacing:-2px}.question{width:100%}}
+.statusTag{display:block;color:var(--accent);font-size:11px;margin-top:6px}.cycle{border:1px solid var(--line);border-radius:10px;padding:12px 18px;margin-bottom:16px}.cycle b{color:var(--accent);padding:0 8px}.cycle small{display:block}.card{width:100%}
 </style>
 </head>
 <body>
 <header><div class="brand"><span class="eyebrow">THE RETURN · CARD DUEL</span>범인은 현장에 다시 나타난다</div><nav class="toolbar" aria-label="게임 메뉴"><button id="rulesBtn">게임 규칙</button><button id="new">새 게임</button></nav></header>
 <main>
-<section id="welcome" class="hero"><span class="eyebrow">TWO PLAYERS. ONE LAST CARD.</span><h1>버린 것은 흔적.<br>남긴 것은 정체.</h1><p>25장의 카드로 펼치는 두 사람의 추리 대결.<br>상대를 조사하고, 마지막 한 장에 당신의 정체를 숨기세요.</p><div class="features"><span>2인 대전</span><span>8라운드 + 최종 선택</span><span>컴퓨터와 자동 대전</span></div><p>내 카드를 고르면 컴퓨터가 선택과 조사를 이어갑니다. 컴퓨터는 자신의 손패와 조사한 정보만 사용합니다. 복사나 API 사용료 없이 바로 대전하세요.</p><button class="primary" id="begin">사건 시작하기 →</button></section>
+<section id="welcome" class="hero"><span class="eyebrow">TWO PLAYERS. ONE LAST CARD.</span><h1>버린 것은 흔적.<br>남긴 것은 정체.</h1><p>18장의 카드로 펼치는 두 사람의 추리 대결.<br>상대를 조사하고, 마지막 한 장에 당신의 정체를 숨기세요.</p><div class="features"><span>2인 대전</span><span>4라운드 + 최종 선택</span><span>컴퓨터와 자동 대전</span></div><p>내 카드를 고르면 컴퓨터가 선택과 조사를 이어갑니다. 컴퓨터는 자신의 손패와 조사한 정보만 사용합니다. 복사나 API 사용료 없이 바로 대전하세요.</p><button class="primary" id="begin">사건 시작하기 →</button></section>
 <section id="table" hidden>
-<div class="topline"><label>대전 상대 <select id="opponentMode"><option value="computer">컴퓨터 · 자동 대전</option><option value="chat">ChatGPT · 복사 대전</option></select></label><span class="badge" id="round"></span><span class="muted" id="priority"></span></div>
+<div class="cycle">경찰 <b>→</b> 범인 <b>→</b> 증인 <b>→</b> 경찰 <small>화살표 방향으로 승리 · 같은 직업은 무승부</small></div><div class="topline"><label>대전 상대 <select id="opponentMode"><option value="computer">컴퓨터 · 자동 대전</option><option value="chat">ChatGPT · 복사 대전</option></select></label><span class="badge" id="round"></span><span class="muted" id="priority"></span></div>
 <div class="layout"><div class="panel">
 <div class="area-title"><strong id="opponentName">상대 · 컴퓨터</strong><span id="opponentCount"></span></div><div class="hand" id="opponent" aria-label="상대 손패"></div><div class="counts" id="theirUsed" aria-label="상대 사용 기록"></div>
-<div class="center"><div class="secrets" id="secrets" aria-label="비밀 카드"></div>
+<div class="center"><p class="muted" style="text-align:center;font-size:12px">비밀 카드 4장 · 별도 2장은 비공개 제외</p><div class="secrets" id="secrets" aria-label="비밀 카드"></div>
 <div aria-live="polite"><h2 id="stageTitle"></h2><p id="stageText"></p></div><div class="controls" id="controls"></div>
 <div id="bridge" class="bridge" hidden>
 <ol><li>전달문을 복사해 ChatGPT 채팅에 붙여넣습니다.</li><li>ChatGPT가 답한 JSON 코드를 아래에 붙여넣습니다.</li></ol>
@@ -45,256 +46,138 @@ dialog{background:#17252e;color:var(--text);border:1px solid #526671;border-radi
 </div><aside><section class="panel"><span class="eyebrow">PRIVATE NOTES</span><h2>나만의 조사 수첩</h2><ul class="entries" id="notes"></ul></section><section class="panel"><span class="eyebrow">PUBLIC RECORD</span><h2>사건 기록</h2><ul class="entries" id="log"></ul></section></aside></div>
 </section>
 <p class="notice" id="error" role="alert"></p><p class="notice" id="storage" role="status"></p>
-</main><footer>수정 룰 v0.3 · 내장 컴퓨터 대전 · API 비용 없음 · 진행은 이 브라우저에 자동 저장됩니다.</footer>
-<dialog id="rules"><div class="dialoghead"><h2>게임 규칙</h2><button id="closeRules" aria-label="규칙 닫기">닫기</button></div>
-<p>마지막에 남긴 한 장이 당신의 직업입니다. 지금 사용하는 직업 카드가 당신의 정체를 고정하지는 않습니다.</p>
-<h3>준비와 진행</h3><p>범인 10장, 경찰·증인·시민 각 5장. 비밀 카드 5장을 두고 각자 10장씩 받습니다. 8라운드 동안 한 장씩 골라 동시에 공개합니다. 능력 순서는 범인 → 경찰 → 증인. 우선권은 매 라운드 바뀝니다.</p>
-<table><tr><th>카드</th><th>사용 능력</th></tr><tr><td>범인</td><td>비밀 한 장을 확인하고, 원하면 손패 한 장과 교환. 사용한 범인 카드는 교환 불가.</td></tr><tr><td>경찰</td><td>서로 다른 상대 카드 최대 두 장에 각각 직업 하나를 질문. 반드시 진실 답변.</td></tr><tr><td>증인</td><td>상대 한 장을 혼자 확인.</td></tr><tr><td>시민</td><td>효과 없음.</td></tr></table>
-<p>둘 다 범인이면 비밀 카드 위치를 먼저 정한 후 우선권 순서로 확인·교환합니다. 같은 위치라면 뒤의 사람은 앞사람이 처리한 후 그 자리에 있는 카드를 확인합니다.</p>
-<p>손패의 위치 번호는 고정됩니다. 교환하면 그 위치의 이전 단서가 무효가 됩니다. 경찰 질문 외의 자유로운 대화에서는 허세나 거짓말을 해도 됩니다.</p>
-<h3>마지막 두 장</h3><p>8라운드 후 한 장을 직업으로 남기고 다른 한 장을 버립니다. 둘 다 정하면 함께 공개합니다. 마지막 버림은 능력 없이 사용 기록에 포함됩니다.</p>
-<h3>승리 조건</h3><table><tr><th>조합</th><th>판정</th></tr><tr><td>경찰 / 범인</td><td>경찰 승리</td></tr><tr><td>범인 / 시민</td><td>범인 승리</td></tr><tr><td>시민 / 경찰</td><td>시민 승리</td></tr><tr><td>증인 / 다른 직업</td><td>증인의 마지막 버림이 상대 직업과 같으면 증인 승리. 다르면 상대 승리.</td></tr><tr><td>범인 / 범인</td><td>시민을 더 많이 낸 사람</td></tr><tr><td>경찰 / 경찰</td><td>범인을 더 많이 낸 사람</td></tr><tr><td>시민 / 시민</td><td>범인을 더 많이 낸 사람</td></tr><tr><td>증인 / 증인</td><td>경찰을 더 많이 낸 사람</td></tr></table><p>같은 직업끼리 비교 수량이 같으면 무승부입니다. 최종 직업 카드와 비밀 카드는 사용 수에 포함하지 않습니다.</p>
-<h3>증언 예시</h3><p>증인과 시민 중 증인을 남기고 시민을 버렸다면 상대가 시민일 때 승리합니다. 둘 다 증인이면 증언 대신 경찰 사용 수만 비교합니다.</p>
-<h3>컴퓨터와 대전</h3><p>기본 상대는 내장 컴퓨터입니다. 카드를 확정하면 컴퓨터가 자동으로 선택하고 능력을 처리합니다. 컴퓨터는 자기 손패, 공개 기록, 조사로 얻은 단서만 사용합니다. 상대의 비공개 카드나 미공개 선택은 읽지 않습니다. 인터넷 연결과 API 키가 필요 없습니다.</p><p>기존 저장 게임도 그대로 이어집니다. 대전 상대 메뉴에서 자동 대전과 채팅 전달 방식을 바꿀 수 있습니다.</p><h3>선택 기능: ChatGPT와 대전</h3><p>내 차례를 확정한 뒤 전달문을 복사해 채팅에 보냅니다. 상대가 답한 JSON 선택 코드를 붙여넣으세요. 전달문은 상대 손패·공개 기록·상대가 능력으로 알아낸 정보만 포함하며, 당신의 손패와 아직 공개되지 않은 선택은 제외합니다.</p><p>같은 기기에서 두 플레이어의 상태를 보관하는 친선 대전입니다. 전달문의 상대 손패를 들여다보거나 브라우저 내부 데이터를 확인하지 않고 플레이해 주세요. 새로고침해도 이어서 진행할 수 있습니다.</p>
-</dialog>
+</main><footer>수정 룰 v0.4 · 내장 컴퓨터 대전 · API 비용 없음 · 진행은 이 브라우저에 자동 저장됩니다.</footer>
+<dialog id="rules"><div class="dialoghead"><h2>새 규칙 · 세 직업 대결</h2><button id="closeRules">닫기</button></div>
+<p><strong>경찰 → 범인 → 증인 → 경찰.</strong> 마지막 한 장으로 승패를 결정하며 같은 직업은 무승부입니다. 증언이나 사용 카드 수 비교는 없습니다.</p>
+<h3>준비</h3><p>경찰·범인·증인 각 6장, 총 18장. 2장은 보지 않고 이번 판에서 제외합니다. 각자 6장씩 받고 가운데 비밀 카드 4장을 둡니다. 제외한 카드는 누구도 확인하거나 교환할 수 없습니다. 4라운드 동안 한 장씩 동시에 공개합니다. 마지막 두 장 중 직업 한 장을 남기고 나머지는 능력 없이 버립니다.</p>
+<h3>범인 · 교환</h3><p>비밀 카드 한 장을 확인하고 원하면 손패 한 장과 교환합니다. 이번에 사용한 범인 카드는 교환할 수 없습니다. 교환된 손패의 공개 상태와 구금은 해제됩니다.</p>
+<h3>경찰 · 수색과 구금</h3><p>직업 하나를 지정합니다. 상대는 해당 직업이 있다면 그중 한 장을 직접 골라 공개합니다. 없다면 사실대로 없다고 답하며 게임이 자동 처리합니다. 공개한 카드는 다음 라운드에 사용할 수 없고, 그 라운드가 끝나면 구금이 풀립니다. 앞면 공개는 사용하거나 교환할 때까지 유지합니다.</p><p>다른 범인 카드를 사용해 구금된 카드를 교환하면 구금이 풀립니다. 4라운드의 경찰은 공개만 하며 최종 선택을 제한하지 않습니다.</p>
+<h3>증인 · 확인</h3><p>상대 손패 한 장을 직접 골라 혼자 확인합니다. 손패의 위치는 고정되고 교환 시 그 위치의 기존 단서가 무효가 됩니다.</p>
+<h3>능력 순서</h3><p>범인 → 경찰 → 증인. 같은 효과는 매 라운드 번갈아 갖는 우선권 순서로 처리합니다. 둘 다 범인이면 확인할 위치를 먼저 정합니다. 같은 비밀 위치를 골랐다면 뒤의 사람은 앞사람이 교환한 뒤 그 자리에 있는 카드를 봅니다. 수색 응답은 해당 경찰 능력 중 즉시 처리합니다.</p>
+<h3>컴퓨터 상대</h3><p>컴퓨터는 자기 손패와 공개 기록, 조사한 정보만 사용합니다. 복사·붙여넣기와 API 요금 없이 자동 대전합니다. 대전 상대 메뉴에서 기존 ChatGPT 전달 방식도 선택할 수 있습니다.</p>
+<h3>저장</h3><p>새 규칙은 별도 저장으로 시작합니다. 이전 25장 게임의 저장은 변경하지 않습니다. 새 규칙 게임은 새로고침 후 이어집니다.</p></dialog>
 <script>
 /* ENGINE_START */
 
-const ROLES = ['범인','경찰','증인','시민'];
-const COUNT_ROLE = [3,0,1,0];
-function settle(a,b,discardA,discardB,usedA,usedB){
-  if(a===b){
-    const r=COUNT_ROLE[a], x=usedA.filter(v=>v===r).length, y=usedB.filter(v=>v===r).length;
-    return {winner:x===y?null:x>y?0:1,reason:ROLES[a]+'끼리: '+ROLES[r]+' 사용 수 '+x+' : '+y};
+const ROLES=['범인','경찰','증인'];
+function settle(a,b){const winner=a===b?null:((a===1&&b===0)||(a===0&&b===2)||(a===2&&b===1)?0:1);return {winner,reason:winner===null?'같은 직업 · 무승부':ROLES[winner===0?a:b]+' 승리'};}
+class Duel{
+ constructor(deck,id,priority=0){
+  this.s={version:2,id,round:1,priority,seq:0,phase:'select',hands:[deck.slice(0,6),deck.slice(6,12)],secret:deck.slice(12,16),excluded:deck.slice(16),used:[[],[]],known:[{},{}],shown:[{},{}],locks:[{},{}],secretKnown:[{},{}],public:[],private:[[],[]],pending:[null,null],targets:[null,null],tasks:[{p:0,kind:'play'},{p:1,kind:'play'}],result:null};this.check();
+ }
+ static restore(s){const g=Object.create(Duel.prototype);g.s=JSON.parse(JSON.stringify(s));g.check();return g;}
+ active(p){return this.s.hands[p].flatMap((r,i)=>r===null?[]:[{slot:i+1,role:r}]);}
+ legal(p){return this.active(p).filter(c=>(this.s.locks[p][c.slot]??0)<this.s.round);}
+ task(){return this.s.tasks[0]||null;}token(){return this.s.id+':'+this.s.seq;}
+ who(p){return p===0?'당신':'상대';}say(x){this.s.public.push(x);}
+ check(){
+  const s=this.s;if(s.version!==2||s.hands.some(h=>h.length!==6)||s.secret.length!==4||s.excluded.length!==2)throw Error('새 규칙 게임을 시작하세요.');
+  const all=[...s.hands.flat(),...s.secret,...s.excluded,...s.used.flat()].filter(r=>r!==null);
+  if(all.length!==18||[0,1,2].some(r=>all.filter(x=>x===r).length!==6))throw Error('카드 구성 오류');
+  for(let p=0;p<2;p++)for(const c of this.active(1-p))if(!((s.known[p][c.slot]??7)&(1<<c.role)))throw Error('단서 오류');
+ }
+ apply(cmd){const old=JSON.stringify(this.s);try{this._apply(cmd);this.check();}catch(e){this.s=JSON.parse(old);throw e;}}
+ _apply(cmd){
+  const s=this.s,t=this.task();if(!t||cmd.token!==this.token()||cmd.action!==t.kind)throw Error('현재 차례의 선택 코드가 아닙니다.');
+  const p=t.p,o=1-p;
+  const slot=(n,a)=>{if(!Number.isInteger(n)||n<1||n>a.length||a[n-1]===null)throw Error('유효하지 않은 위치입니다.');return n-1;};
+  if(t.kind==='play'||t.kind==='final'){
+   const i=slot(cmd.slot,s.hands[p]);
+   if(t.kind==='play'&&!this.legal(p).some(c=>c.slot===cmd.slot))throw Error('구금된 카드는 이번 라운드에 사용할 수 없습니다.');
+   s.pending[p]=i;
+  }else if(t.kind==='target')s.targets[p]=slot(cmd.slot,s.secret);
+  else if(t.kind==='swap'){
+   if(cmd.slot!==null){
+    const i=slot(cmd.slot,s.hands[p]),j=s.targets[p],a=s.hands[p][i],b=s.secret[j];
+    s.hands[p][i]=b;s.secret[j]=a;delete s.known[o][i+1];delete s.shown[p][i+1];delete s.locks[p][i+1];delete s.secretKnown[o][j+1];s.secretKnown[p][j+1]=a;
+    s.private[p].push('비밀 '+(j+1)+'번 '+ROLES[b]+' ↔ 내 '+(i+1)+'번 '+ROLES[a]);
+    this.say(this.who(p)+'이 손패 '+(i+1)+'번과 비밀 '+(j+1)+'번 교환. 이전 단서와 구금 해제.');
+   }else this.say(this.who(p)+'이 교환하지 않음.');
+  }else if(t.kind==='search'){
+   const r=ROLES.indexOf(cmd.role);if(r<0)throw Error('수색할 직업을 선택하세요.');
+   this.say(this.who(p)+'의 수색: '+ROLES[r]);
+   if(s.hands[o].includes(r))s.tasks.splice(1,0,{p:o,kind:'expose',role:r});
+   else{this.say(this.who(o)+'의 답변: 없다.');for(const c of this.active(o))s.known[p][c.slot]=(s.known[p][c.slot]??7)&(7^(1<<r));}
+  }else if(t.kind==='expose'){
+   const i=slot(cmd.slot,s.hands[p]);if(s.hands[p][i]!==t.role)throw Error('수색받은 직업의 카드를 공개하세요.');
+   s.shown[p][i+1]=t.role;s.known[o][i+1]=1<<t.role;
+   if(s.round<4)s.locks[p][i+1]=s.round+1;
+   this.say(this.who(p)+'이 '+(i+1)+'번 '+ROLES[t.role]+' 공개'+(s.round<4?' · '+(s.round+1)+'라운드 사용 금지':' · 마지막 라운드, 구금 없음'));
+  }else if(t.kind==='peek'){
+   const i=slot(cmd.slot,s.hands[o]),r=s.hands[o][i];s.known[p][i+1]=1<<r;
+   s.private[p].push('증인: 상대 '+(i+1)+'번은 '+ROLES[r]);this.say(this.who(p)+'이 상대 '+(i+1)+'번 확인.');
+  }else throw Error('지원하지 않는 행동');
+  s.tasks.shift();s.seq++;this.advance();
+ }
+ advance(){
+  const s=this.s;
+  if(!s.tasks.length){
+   if(s.phase==='select'){
+    const played=s.pending.map((i,p)=>s.hands[p][i]);
+    for(let p=0;p<2;p++){const i=s.pending[p];s.used[p].push(played[p]);s.hands[p][i]=null;delete s.known[1-p][i+1];delete s.shown[p][i+1];delete s.locks[p][i+1];}
+    this.say('── '+s.round+'라운드 · 당신 '+ROLES[played[0]]+' / 상대 '+ROLES[played[1]]);
+    s.pending=[null,null];s.phase='effects';s.targets=[null,null];
+    const first=(s.priority+s.round-1)%2,order=[first,1-first],cs=order.filter(p=>played[p]===0);
+    s.tasks=[...cs.map(p=>({p,kind:'target'})),...cs.map(p=>({p,kind:'swap'})),...order.filter(p=>played[p]===1).map(p=>({p,kind:'search'})),...order.filter(p=>played[p]===2).map(p=>({p,kind:'peek'}))];
+    if(!s.tasks.length)return this.advance();
+   }else if(s.phase==='effects'){
+    if(s.round===4){s.phase='final';s.tasks=[{p:0,kind:'final'},{p:1,kind:'final'}];this.say('── 마지막 두 장: 최종 직업을 고르세요.');}
+    else{s.round++;s.phase='select';s.tasks=[{p:0,kind:'play'},{p:1,kind:'play'}];}
+   }else if(s.phase==='final'){
+    const roles=s.pending.map((i,p)=>s.hands[p][i]),discards=[];
+    for(let p=0;p<2;p++){const d=this.active(p).find(c=>c.slot-1!==s.pending[p]);discards.push(d.role);s.used[p].push(d.role);s.hands[p][d.slot-1]=null;delete s.shown[p][d.slot];}
+    s.result={...settle(...roles),roles,discards};s.phase='done';this.say('── 최종 공개 · 당신 '+ROLES[roles[0]]+' / 상대 '+ROLES[roles[1]]);this.say(s.result.reason);return;
+   }
   }
-  if(a===2||b===2){
-    const p=a===2?0:1, hit=(p===0?discardA:discardB)===(p===0?b:a);
-    return {winner:hit?p:1-p,reason:(p===0?'당신':'상대')+'의 증언 '+(hit?'성공':'실패')+' · '+ROLES[p===0?discardA:discardB]+' 지목'};
-  }
-  const win=(a===0&&b===3)||(a===1&&b===0)||(a===3&&b===1);
-  return {winner:win?0:1,reason:ROLES[win?a:b]+' 승리'};
-}
-class Duel {
-  constructor(deck,id,priority=0){
-    if(deck.length!==25 || [0,1,2,3].some((r)=>deck.filter(x=>x===r).length!==[10,5,5,5][r]))throw Error('덱 구성 오류');
-    this.s={version:1,id,round:1,priority,seq:0,phase:'select',hands:[deck.slice(0,10),deck.slice(10,20)],secret:deck.slice(20),used:[[],[]],known:[{},{}],secretKnown:[{},{}],public:[],private:[[],[]],pending:[null,null],targets:[null,null],tasks:[{p:0,kind:'play'},{p:1,kind:'play'}],result:null};
-  }
-  static restore(s){const g=Object.create(Duel.prototype);g.s=JSON.parse(JSON.stringify(s));g.check();return g;}
-  active(p){return this.s.hands[p].flatMap((r,i)=>r===null?[]:[{slot:i+1,role:r}]);}
-  token(){return this.s.id+':'+this.s.seq;}
-  task(){return this.s.tasks[0]||null;}
-  who(p){return p===0?'당신':'상대';}
-  say(t){this.s.public.push(t);}
-  check(){
-    const s=this.s,all=[...s.hands[0],...s.hands[1],...s.secret,...s.used[0],...s.used[1]].filter(x=>x!==null);
-    if(s.version!==1||s.secret.length!==5||all.length!==25||[0,1,2,3].some(r=>all.filter(x=>x===r).length!==[10,5,5,5][r]))throw Error('게임 상태가 올바르지 않습니다.');
-    for(let p=0;p<2;p++)for(const [slot,mask]of Object.entries(s.known[p])){
-      const r=s.hands[1-p][Number(slot)-1];if(r!==null&&!(mask&(1<<r)))throw Error('단서 상태 오류');
-    }
-  }
-  apply(cmd){
-    const old=JSON.stringify(this.s);
-    try{this._apply(cmd);this.check();}
-    catch(e){this.s=JSON.parse(old);throw e;}
-  }
-  _apply(cmd){
-    const s=this.s,t=this.task();
-    if(!t||cmd.token!==this.token()||cmd.action!==t.kind)throw Error('현재 차례의 선택 코드가 아닙니다. 새 전달문을 사용하세요.');
-    const p=t.p,o=1-p;
-    const slot=(n,hand)=>{if(!Number.isInteger(n)||n<1||n>hand.length||hand[n-1]===null)throw Error('선택할 수 없는 카드 위치입니다.');return n-1;};
-    if(t.kind==='play'||t.kind==='final')s.pending[p]=slot(cmd.slot,s.hands[p]);
-    else if(t.kind==='target')s.targets[p]=slot(cmd.slot,s.secret);
-    else if(t.kind==='swap'){
-      if(cmd.slot!==null){
-        const i=slot(cmd.slot,s.hands[p]),j=s.targets[p],a=s.hands[p][i],b=s.secret[j];
-        s.hands[p][i]=b;s.secret[j]=a;
-        delete s.known[o][i+1];delete s.secretKnown[o][j+1];
-        s.secretKnown[p][j+1]=a;
-        s.private[p].push('비밀 '+(j+1)+'번의 '+ROLES[b]+'을 가져오고, 내 '+(i+1)+'번 '+ROLES[a]+'을 보냄.');
-        this.say(this.who(p)+'이 손패 '+(i+1)+'번과 비밀 '+(j+1)+'번을 교환. 해당 위치의 이전 단서는 무효.');
-      }else this.say(this.who(p)+'이 비밀 카드를 확인하고 교환하지 않음.');
-    }else if(t.kind==='peek'){
-      const i=slot(cmd.slot,s.hands[o]),r=s.hands[o][i];
-      s.known[p][i+1]=1<<r;
-      s.private[p].push('증인: 상대 '+(i+1)+'번은 '+ROLES[r]+'.');
-      this.say(this.who(p)+'이 상대 손패 '+(i+1)+'번을 확인.');
-    }else if(t.kind==='ask'){
-      if(!Array.isArray(cmd.questions)||cmd.questions.length>2)throw Error('서로 다른 카드 최대 두 장에 질문하세요.');
-      const seen=new Set();
-      for(const q of cmd.questions){
-        const i=slot(q.slot,s.hands[o]),r=ROLES.indexOf(q.role);
-        if(r<0||seen.has(i))throw Error('질문 직업 또는 중복 위치를 확인하세요.');
-        seen.add(i);
-        const yes=s.hands[o][i]===r;
-        s.known[p][i+1]=(s.known[p][i+1]??15)&(yes?1<<r:15^(1<<r));
-        this.say(this.who(p)+'의 질문: 상대 '+(i+1)+'번은 '+ROLES[r]+'? '+(yes?'맞아':'아니야'));
-      }
-      if(!cmd.questions.length)this.say(this.who(p)+'이 질문을 생략.');
-    }
-    s.tasks.shift();s.seq++;
-    this.advance();
-  }
-  advance(){
-    const s=this.s;
-    if(!s.tasks.length){
-      if(s.phase==='select'){
-        const played=s.pending.map((i,p)=>s.hands[p][i]);
-        for(let p=0;p<2;p++){const i=s.pending[p];s.used[p].push(played[p]);s.hands[p][i]=null;delete s.known[1-p][i+1];}
-        this.say('── '+s.round+'라운드 공개 · 당신 '+ROLES[played[0]]+' / 상대 '+ROLES[played[1]]);
-        s.pending=[null,null];s.phase='effects';s.targets=[null,null];
-        const first=(s.priority+s.round-1)%2,order=[first,1-first];
-        const criminals=order.filter(p=>played[p]===0);
-        s.tasks=[...criminals.map(p=>({p,kind:'target'})),...criminals.map(p=>({p,kind:'swap'})),
-          ...order.filter(p=>played[p]===1).map(p=>({p,kind:'ask'})),
-          ...order.filter(p=>played[p]===2).map(p=>({p,kind:'peek'}))];
-        if(!s.tasks.length){this.advance();return;}
-      }else if(s.phase==='effects'){
-        if(s.round===8){s.phase='final';s.pending=[null,null];s.tasks=[{p:0,kind:'final'},{p:1,kind:'final'}];this.say('── 최종 선택 · 남길 직업 한 장을 선택. 나머지는 마지막 버림 / 증언 카드.');}
-        else{s.round++;s.phase='select';s.pending=[null,null];s.tasks=[{p:0,kind:'play'},{p:1,kind:'play'}];}
-      }else if(s.phase==='final'){
-        const roles=s.pending.map((i,p)=>s.hands[p][i]),discards=[];
-        for(let p=0;p<2;p++){
-          const d=this.active(p).find(c=>c.slot-1!==s.pending[p]);discards.push(d.role);
-          s.used[p].push(d.role);s.hands[p][d.slot-1]=null;
-        }
-        s.result={...settle(...roles,...discards,...s.used),roles,discards};
-        s.phase='done';this.say('── 최종 공개 · 당신 '+ROLES[roles[0]]+' / 상대 '+ROLES[roles[1]]);
-        this.say(s.result.reason);return;
-      }
-    }
-    const t=this.task();
-    if(t&&t.kind==='swap'){
-      const j=s.targets[t.p],r=s.secret[j];
-      t.revealed=r;s.secretKnown[t.p][j+1]=r;
-      s.private[t.p].push('범인: 비밀 '+(j+1)+'번은 '+ROLES[r]+'.');
-    }
-  }
-  packet(){
-    const s=this.s,t=this.task();
-    if(!t||t.p!==1)throw Error('상대 차례가 아닙니다.');
-    const options={
-      play:{slot:'내 손패에서 사용할 위치 번호'},
-      final:{slot:'내 손패에서 최종 직업으로 남길 위치 번호'},
-      target:{slot:'확인할 비밀 위치 1~5'},
-      swap:{slot:'교환할 내 손패 위치 또는 null (교환 안 함)'},
-      peek:{slot:'상대 손패에서 확인할 위치'},
-      ask:{questions:[{slot:'상대 위치 번호',role:'범인 / 경찰 / 증인 / 시민'}]}
-    };
-    return {
-      game:'범인은 현장에 다시 나타난다',instruction:'너는 상대 플레이어다. 아래 제공된 정보만 사용해 최선의 선택을 하고 JSON 코드 하나만 답하라. 사용자의 손패나 비밀 원본 상태를 요청하지 마라.',
-      rules:'범인10 경찰5 증인5 시민5. 10장씩 받고 비밀5장. 8라운드 동시 공개. 범인: 비밀 확인 후 손패와 선택 교환. 경찰: 서로 다른 최대2장에 직업 질문, 진실 답변. 증인: 1장 직접 확인. 시민: 없음. 범인→경찰→증인 순서. 8라운드 후 두 장 중 직업1장 유지, 나머지 마지막 버림은 효과 없이 기록 포함. 경찰>범인>시민>경찰. 증인 vs 다른 직업: 증인의 마지막 버린 카드가 상대 직업과 같으면 증인 승리, 아니면 패배. 같은 직업이면 범인:시민 사용수, 경찰:범인 사용수, 시민:범인 사용수, 증인:경찰 사용수 비교. 같으면 무승부.',
-      token:this.token(),round:s.round,phase:s.phase,action:t.kind,
-      logLegend:'publicLog의 당신은 사용자(0), 상대는 너(1). privateNotes의 상대는 사용자.',
-      abilityPriority:(s.priority+s.round-1)%2===1?'나':'상대',
-      myHand:this.active(1).map(c=>({slot:c.slot,role:ROLES[c.role]})),
-      opponentSlots:this.active(0).map(c=>({slot:c.slot,possible:ROLES.filter((_,r)=>(s.known[1][c.slot]??15)&(1<<r))})),
-      secretKnowledge:Object.fromEntries(Object.entries(s.secretKnown[1]).map(([i,r])=>[i,ROLES[r]])),
-      revealedSecret:t.kind==='swap'?{slot:s.targets[1]+1,role:ROLES[t.revealed]}:undefined,
-      played:{me:s.used[1].map(r=>ROLES[r]),opponent:s.used[0].map(r=>ROLES[r])},
-      publicLog:s.public,privateNotes:s.private[1],
-      response:{token:this.token(),action:t.kind,...options[t.kind]}
-    };
-  }
+  const t=this.task();
+  if(t?.kind==='swap'){const j=s.targets[t.p];t.revealed=s.secret[j];s.secretKnown[t.p][j+1]=t.revealed;s.private[t.p].push('비밀 '+(j+1)+'번: '+ROLES[t.revealed]);}
+ }
+ packet(){
+  const s=this.s,t=this.task();if(!t)throw Error('종료된 게임');const p=t.p,o=1-p;
+  const options={play:{slot:'사용 가능한 내 위치'},final:{slot:'남길 직업 위치'},target:{slot:'비밀 위치 1~4'},swap:{slot:'교환할 내 위치 또는 null'},search:{role:'범인 / 경찰 / 증인'},expose:{slot:'수색 직업과 일치하는 내 위치'},peek:{slot:'상대 위치'}};
+  return {game:'범인은 현장에 다시 나타난다',instruction:'제공된 정보만 사용해 JSON 선택 코드 하나로 답하라.',
+   rules:'각 직업6장 총18장. 손패6장씩 비밀4장, 무작위2장은 비공개 제외. 4라운드 동시 공개 후 두 장 중 최종 직업1장. 경찰>범인>증인>경찰, 같은 직업 무승부. 범인: 비밀1장 확인 후 손패 선택 교환(공개와 구금 해제). 경찰: 직업1개 수색, 상대는 있으면 해당1장을 골라 공개하며 다음 라운드 사용 금지. 없으면 진실 답변. 4라운드 경찰은 공개만. 증인: 상대1장 확인. 효과 범인→경찰→증인. 구금 카드도 다른 범인으로 교환 가능. 마지막 버림은 효과 없음.',
+   token:this.token(),action:t.kind,phase:s.phase,round:s.round,actor:p,logLegend:'공개 기록의 당신=0, 상대=1',
+   myHand:this.active(p).map(c=>({slot:c.slot,role:ROLES[c.role],public:s.shown[p][c.slot]!==undefined,locked:(s.locks[p][c.slot]??0)>=s.round})),
+   legalSlots:(t.kind==='play'?this.legal(p):this.active(p)).map(c=>c.slot),
+   opponentSlots:this.active(o).map(c=>({slot:c.slot,possible:ROLES.filter((_,r)=>(s.known[p][c.slot]??7)&(1<<r)),locked:(s.locks[o][c.slot]??0)>=s.round})),
+   secretKnowledge:Object.fromEntries(Object.entries(s.secretKnown[p]).map(([k,r])=>[k,ROLES[r]])),
+   revealedSecret:t.kind==='swap'?{slot:s.targets[p]+1,role:ROLES[t.revealed]}:undefined,
+   searchRole:t.kind==='expose'?ROLES[t.role]:undefined,
+   played:{me:s.used[p].map(r=>ROLES[r]),opponent:s.used[o].map(r=>ROLES[r])},
+   publicLog:s.public,privateNotes:s.private[p],response:{token:this.token(),action:t.kind,...options[t.kind]}
+  };
+ }
 }
 
 /* ENGINE_END */
 
 /* BOT_START */
-// The policy accepts only a redacted player view, never the Duel or browser state.
-function chooseComputer(view, rng=Math.random){
- const own=view.myHand.map(c=>({slot:c.slot,r:ROLES.indexOf(c.role)}));
- const mine=view.played.me.map(r=>ROLES.indexOf(r)),theirs=view.played.opponent.map(r=>ROLES.indexOf(r));
- const total=[10,5,5,5];
- [...own.map(c=>c.r),...mine,...theirs,...Object.values(view.secretKnowledge).map(r=>ROLES.indexOf(r))].forEach(r=>total[r]--);
- const slots=view.opponentSlots.map(c=>({slot:c.slot,rs:c.possible.map(r=>ROLES.indexOf(r))}));
- const known=slots.filter(c=>c.rs.length===1);
- function probabilities(c){
-   const pool=total.slice();
-   known.filter(k=>k.slot!==c.slot).forEach(k=>pool[k.rs[0]]--);
-   const values=[0,1,2,3].map(r=>c.rs.includes(r)?Math.max(0,pool[r]):0);
-   let sum=values.reduce((a,b)=>a+b,0);
-   return sum?values.map(v=>v/sum):[0,1,2,3].map(r=>c.rs.includes(r)?1/c.rs.length:0);
- }
- const entropy=a=>a.reduce((s,p)=>s+(p>0?-p*Math.log2(p):0),0);
- const beliefs=slots.map(c=>({...c,probs:probabilities(c)}));
- const base={token:view.token,action:view.action};
- const best=items=>items.reduce((a,b)=>!a||b.score>a.score?b:a,null);
- if(view.action==='ask'){
-   const qs=beliefs.map(c=>{
-     const q=best(c.probs.map((p,r)=>({r,score:entropy([p,1-p])+rng()*.0001})));
-     return {slot:c.slot,role:ROLES[q.r],score:q.score};
-   }).filter(q=>q.score>.001).sort((a,b)=>b.score-a.score).slice(0,2);
-   return {...base,questions:qs.map(({slot,role})=>({slot,role}))};
- }
- if(view.action==='peek'){
-   return {...base,slot:best(beliefs.map(c=>({slot:c.slot,score:entropy(c.probs)+rng()*.01}))).slot};
- }
- // Sample possible opposing hands consistently with card counts and known clues.
- const samples=[];
- for(let trial=0;trial<180&&samples.length<36;trial++){
-   const pool=total.slice(),assigned={},order=beliefs.slice().sort((a,b)=>a.rs.length-b.rs.length||a.slot-b.slot);
-   let ok=true;
-   for(const c of order){
-     const options=c.rs.filter(r=>pool[r]>0),sum=options.reduce((n,r)=>n+pool[r],0);
-     if(!sum){ok=false;break;}
-     let x=rng()*sum,r=options[options.length-1];
-     for(const k of options){x-=pool[k];if(x<0){r=k;break;}}
-     assigned[c.slot]=r;pool[r]--;
-   }
-   if(ok)samples.push(slots.map(c=>assigned[c.slot]));
- }
- if(!samples.length)samples.push(beliefs.map(c=>best(c.probs.map((p,r)=>({r,score:p}))).r));
- const scoreCache=new Map();
- function pairScore(hand,keep,discard,extra=[]){
-   const myUsed=[...mine,...extra,...hand.filter((_,i)=>i!==keep).map(c=>c.r)];
-   const key=hand[keep].r+','+hand[discard].r+':'+[0,1,2,3].map(r=>myUsed.filter(x=>x===r).length).join(',');
-   if(scoreCache.has(key))return scoreCache.get(key);
-   let value=0;
-   for(const other of samples){
-     let sum=0,n=0,worst=1;
-     for(let i=0;i<other.length;i++)for(let j=0;j<other.length;j++)if(i!==j){
-       const oppUsed=[...theirs,...other.filter((_,k)=>k!==i)];
-       const result=settle(hand[keep].r,other[i],hand[discard].r,other[j],myUsed,oppUsed);
-       const score=result.winner===null?0:result.winner===0?1:-1;
-       sum+=score;n++;worst=Math.min(worst,score);
-     }
-     value+=n?(other.length===2?.65*sum/n+.35*worst:sum/n):0;
-   }
-   scoreCache.set(key,value/samples.length);return value/samples.length;
- }
- function handScore(hand,extra=[]){
-   let score=-Infinity;
-   for(let i=0;i<hand.length;i++)for(let j=0;j<hand.length;j++)if(i!==j)score=Math.max(score,pairScore(hand,i,j,extra));
-   return score+new Set(hand.map(c=>c.r)).size*.025;
- }
- if(view.action==='final'){
-   return {...base,slot:best(own.map((c,i)=>({slot:c.slot,score:pairScore(own,i,1-i)+rng()*.015}))).slot};
- }
- if(view.action==='target'){
-   const baseline=handScore(own);
-   return {...base,slot:best([1,2,3,4,5].map(slot=>{
-     const r=ROLES.indexOf(view.secretKnowledge[slot]);
-     const gain=r<0?.10:Math.max(0,...own.map((c,i)=>handScore(own.map((v,j)=>j===i?{...v,r}:v))-baseline));
-     return {slot,score:gain+rng()*.025};
-   })).slot};
- }
- if(view.action==='swap'){
-   const r=ROLES.indexOf(view.revealedSecret.role);
-   const options=[{slot:null,score:handScore(own)+.008},...own.map((c,i)=>({slot:c.slot,score:handScore(own.map((v,j)=>i===j?{...v,r}:v))+rng()*.002}))];
-   return {...base,slot:best(options).slot};
- }
- const uncertainty=beliefs.reduce((n,c)=>n+entropy(c.probs),0)/Math.max(1,beliefs.length);
- return {...base,slot:best(own.map((c,i)=>{
-   const remaining=own.filter((_,j)=>j!==i);
-   const ability=c.r===0?.07:c.r===1?.065*uncertainty:c.r===2?.08*uncertainty:0;
-   return {slot:c.slot,score:handScore(remaining,[c.r])+ability+rng()*.02};
- })).slot};
+
+function chooseComputer(v,rng=Math.random){
+ const own=v.myHand.map(c=>({...c,r:ROLES.indexOf(c.role)})),pool=[6,6,6];
+ [...own.map(c=>c.r),...v.played.me.map(r=>ROLES.indexOf(r)),...v.played.opponent.map(r=>ROLES.indexOf(r)),...Object.values(v.secretKnowledge).map(r=>ROLES.indexOf(r))].forEach(r=>pool[r]--);
+ const bs=v.opponentSlots.map(c=>{const w=ROLES.map((r,i)=>c.possible.includes(r)?Math.max(0,pool[i]):0),sum=w.reduce((a,b)=>a+b,0);return {...c,pr:w.map((x,i)=>sum?x/sum:c.possible.includes(ROLES[i])?1/c.possible.length:0)};});
+ const dist=[0,1,2].map(r=>bs.reduce((n,c)=>n+c.pr[r],0)/bs.length);
+ const val=r=>dist.reduce((n,p,o)=>n+p*(r===o?0:settle(r,o).winner===0?1:-1),0);
+ const best=a=>a.reduce((x,y)=>!x||y.score>x.score?y:x,null);
+ const score=h=>Math.max(...h.map(c=>val(c.r)))+.08*new Set(h.map(c=>c.r)).size;
+ const base={token:v.token,action:v.action};
+ if(v.action==='final')return {...base,slot:best(own.map(c=>({slot:c.slot,score:val(c.r)+rng()*.02}))).slot};
+ if(v.action==='play')return {...base,slot:best(own.filter(c=>v.legalSlots.includes(c.slot)).map(c=>({slot:c.slot,score:score(own.filter(x=>x.slot!==c.slot))+(c.r===1?.11:c.r===0?.07:.06)+rng()*.035}))).slot};
+ if(v.action==='peek')return {...base,slot:best(bs.map(c=>({slot:c.slot,score:c.pr.reduce((n,p)=>n+(p?-p*Math.log2(p):0),0)+rng()*.01}))).slot};
+ if(v.action==='search')return {...base,role:ROLES[best([0,1,2].map(r=>({r,score:1-bs.reduce((n,c)=>n*(1-c.pr[r]),1)+rng()*.12}))).r]};
+ if(v.action==='expose')return {...base,slot:best(own.filter(c=>c.role===v.searchRole).map(c=>({slot:c.slot,score:(c.public?1:0)+(c.locked?.2:0)+rng()*.01}))).slot};
+ if(v.action==='target')return {...base,slot:best([1,2,3,4].map(slot=>{const r=ROLES.indexOf(v.secretKnowledge[slot]);return {slot,score:r<0?.12:Math.max(0,...own.map(c=>score(own.map(x=>x.slot===c.slot?{...x,r}:x))-score(own)))+rng()*.01};})).slot};
+ if(v.action==='swap'){const r=ROLES.indexOf(v.revealedSecret.role);return {...base,slot:best([{slot:null,score:score(own)+.01},...own.map(c=>({slot:c.slot,score:score(own.map(x=>x.slot===c.slot?{...x,r}:x))+(c.locked?.06:0)+(c.public?.025:0)}))]).slot};}
+ throw Error('지원하지 않는 컴퓨터 행동');
 }
+
 /* BOT_END */
 
 
 const $=id=>document.getElementById(id);
-const KEY='culprit-duel-v1';
+const KEY='culprit-duel-v2';
 let game=null, selected=null, botTimer=null;
 let mode='computer';
 try{mode=localStorage.getItem('culprit-opponent-mode')||'computer';}catch(e){}
@@ -313,7 +196,7 @@ function random(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[
 function save(){try{localStorage.setItem(KEY,JSON.stringify(game.s));}catch(e){$('storage').textContent='이 브라우저에서는 진행을 저장할 수 없습니다. 탭을 닫으면 게임이 사라집니다.';}}
 function start(){
  if(game&&game.s.phase!=='done'&&!confirm('진행 중인 게임을 끝내고 새로 시작할까요?'))return;
- let d=[...Array(10).fill(0),...Array(5).fill(1),...Array(5).fill(2),...Array(5).fill(3)];
+ let d=[...Array(6).fill(0),...Array(6).fill(1),...Array(6).fill(2)];
  for(let i=d.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
  game=new Duel(d,Array.from(crypto.getRandomValues(new Uint32Array(3)),v=>v.toString(36)).join('-'),Math.floor(random()*2));
  selected=null;save();render();
@@ -322,18 +205,22 @@ function act(payload){
  try{game.apply({token:game.token(),action:game.task().kind,...payload});selected=null;save();render();$('error').textContent='';}
  catch(e){$('error').textContent=e.message;}
 }
-function labelMask(mask){return ROLES.filter((_,r)=>(mask??15)&(1<<r)).join(' · ');}
+function labelMask(mask){return ROLES.filter((_,r)=>(mask??7)&(1<<r)).join(' · ');}
 function card(slot,r,zone,enabled,mask){
  const known=mask!==undefined&&[1,2,4,8].includes(mask)?Math.log2(mask):null;
  const visible=r!==null, actual=visible?r:known;
  const selectedClass=enabled&&selected===slot?' selected':'';
  const c=actual===null?'back':'role'+actual;
- return '<button type="button" class="card '+c+selectedClass+'" data-slot="'+slot+'" data-zone="'+zone+'" '+(!enabled?'disabled':'')+' aria-pressed="'+(selected===slot)+'"><span class="slot">'+slot+'번</span><span class="sigil">'+(visible?['◆','✦','◉','◇'][r]:'?')+'</span><strong>'+(visible?ROLES[r]:known!==null?ROLES[known]+' · 확인':'비공개')+'</strong><small>'+(visible?['비밀 카드 교환','두 장에 질문','한 장 확인','기록을 남긴다'][r]:'위치 유지')+'</small></button>';
+ return '<button type="button" class="card '+c+selectedClass+'" data-slot="'+slot+'" data-zone="'+zone+'" '+(!enabled?'disabled':'')+' aria-pressed="'+(selected===slot)+'"><span class="slot">'+slot+'번</span><span class="sigil">'+(visible?['◆','✦','◉','◇'][r]:'?')+'</span><strong>'+(visible?ROLES[r]:known!==null?ROLES[known]+' · 확인':'비공개')+'</strong><small>'+(visible?['비밀 카드 교환','수색과 구금','한 장 확인'][r]:'위치 유지')+'</small></button>';
 }
 function drawHand(id,p){
  const s=game.s,t=game.task(),human=t&&t.p===0;
- const clickable=human&&((p===0&&['play','final','swap'].includes(t.kind))||(p===1&&t.kind==='peek'));
- $(id).innerHTML=game.active(p).map(c=>card(c.slot,(p===0||s.phase==='done')?c.role:null,p===0?'hand':'opponent',clickable,p===1?s.known[0][c.slot]:undefined)).join('');
+ const clickable=human&&((p===0&&['play','final','swap','expose'].includes(t.kind))||(p===1&&t.kind==='peek'));
+ $(id).innerHTML=game.active(p).map(c=>{
+ const locked=(s.locks[p][c.slot]??0)>=s.round;
+ const enabled=clickable&&!(t.kind==='play'&&locked)&&!(t.kind==='expose'&&c.role!==t.role);
+ return '<div>'+card(c.slot,(p===0||s.phase==='done'||s.shown[p][c.slot]!==undefined)?c.role:null,p===0?'hand':'opponent',enabled,p===1?s.known[0][c.slot]:undefined)+(s.shown[p][c.slot]!==undefined?'<small class="statusTag">공개'+(locked?' · '+s.locks[p][c.slot]+'라운드 구금':'')+'</small>':'')+'</div>';
+ }).join('');
  $(id).querySelectorAll('button:not(:disabled)').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.slot);render();});
 }
 function counts(p){return ROLES.map((r,i)=>'<span class="count role'+i+'">'+r+' <b>'+game.s.used[p].filter(x=>x===i).length+'</b></span>').join('');}
@@ -343,7 +230,7 @@ function render(){
  $('opponentName').textContent=mode==='computer'?'상대 · 컴퓨터':'상대 · ChatGPT';
  $('welcome').hidden=!!game;$('table').hidden=!game;
  if(!game)return;
- const s=game.s,t=game.task();$('round').textContent=s.phase==='done'?'사건 종결':s.phase==='final'?'최종 선택':s.round+' / 8 라운드';
+ const s=game.s,t=game.task();$('round').textContent=s.phase==='done'?'사건 종결':s.phase==='final'?'최종 선택':s.round+' / 4 라운드';
  $('priority').textContent='능력 우선권 · '+game.who((s.priority+s.round-1)%2);
  $('humanCount').textContent=game.active(0).length+'장';$('opponentCount').textContent=game.active(1).length+'장';
  drawHand('hand',0);drawHand('opponent',1);
@@ -357,7 +244,7 @@ function render(){
  $('command').value='';$('copyStatus').textContent='';
  if(s.phase==='done'){
    $('stageTitle').textContent='마지막 정체가 드러났습니다';
-   $('stageText').textContent='최종 버린 카드도 사용 수에 포함합니다.';
+   $('stageText').textContent='경찰 → 범인 → 증인 → 경찰 · 같은 직업은 무승부';
    $('result').innerHTML='<span class="eyebrow">CASE CLOSED</span><h2>'+(s.result.winner===null?'무승부':s.result.winner===0?'당신의 승리':'상대의 승리')+'</h2><p>당신: '+ROLES[s.result.roles[0]]+' · 상대: '+ROLES[s.result.roles[1]]+'</p><p>'+esc(s.result.reason)+'</p><small>마지막 버림 — 당신 '+ROLES[s.result.discards[0]]+' / 상대 '+ROLES[s.result.discards[1]]+'</small>';
    return;
  }
@@ -373,18 +260,17 @@ function render(){
  }
  const texts={
  play:['이번 라운드에 사용할 카드','아래 내 손패에서 한 장을 선택하세요. 상대도 선택하면 동시에 공개됩니다.'],
- final:['마지막 정체를 선택하세요','아래 두 장 중 직업으로 남길 카드를 고르세요. 다른 카드는 마지막 버림이 됩니다. 증인을 남기면 버린 카드가 증언입니다.'],
- target:['확인할 비밀 카드','가운데 비밀 카드 다섯 장 중 하나를 고르세요. 둘 다 범인이면 대상을 먼저 정한 후 우선권 순서로 확인합니다.'],
+ final:['마지막 정체를 선택하세요','아래 두 장 중 직업으로 남길 카드를 고르세요. 다른 카드는 효과 없이 버립니다. 경찰 → 범인 → 증인 → 경찰, 같은 직업은 무승부입니다.'],
+ target:['확인할 비밀 카드','가운데 비밀 카드 네 장 중 하나를 고르세요. 둘 다 범인이면 대상을 먼저 정한 후 우선권 순서로 확인합니다.'],
  swap:['비밀 카드: '+ROLES[t.revealed],'내 손패 한 장을 고르면 이 비밀 카드와 교환합니다. 원하지 않으면 교환하지 않아도 됩니다.'],
  peek:['상대의 카드 한 장을 확인','위쪽 상대 손패의 위치를 고르세요. 확인 결과는 나만의 조사 수첩에 남습니다.'],
- ask:['경찰의 질문','서로 다른 상대 카드 최대 두 장에 질문하세요. 답변은 게임이 사실대로 처리합니다.']
+ search:['경찰의 수색','직업 하나를 지정하세요. 상대는 있으면 한 장을 골라 공개하고, 다음 라운드에 사용할 수 없습니다. 마지막 라운드에는 구금하지 않습니다.'],
+ expose:['수색에 응답: '+ROLES[t.role], '해당 직업의 카드 한 장을 골라 공개하세요. 공개된 카드는 교환하거나 사용할 때까지 드러나 있습니다.']
  };
  $('stageTitle').textContent=texts[t.kind][0];$('stageText').textContent=texts[t.kind][1];
- if(t.kind==='ask'){
-   const opts='<option value="">질문하지 않음</option>'+game.active(1).map(c=>'<option value="'+c.slot+'">상대 '+c.slot+'번</option>').join('');
-   const roles=ROLES.map(r=>'<option>'+r+'</option>').join('');
-   $('controls').innerHTML=[0,1].map(i=>'<div class="question"><label for="q'+i+'">질문 '+(i+1)+'</label><select id="q'+i+'">'+opts+'</select><select aria-label="질문 '+(i+1)+' 직업" id="r'+i+'">'+roles+'</select></div>').join('')+'<button class="primary" id="submit">질문하기</button>';
-   $('submit').onclick=()=>act({questions:[0,1].flatMap(i=>$('q'+i).value?[{slot:Number($('q'+i).value),role:$('r'+i).value}]:[])});
+ if(t.kind==='search'){
+ $('controls').innerHTML=ROLES.map((r,i)=>'<button class="primary" id="search'+i+'">'+r+' 수색</button>').join('');
+ ROLES.forEach((r,i)=>$('search'+i).onclick=()=>act({role:r}));
  }else{
    $('controls').innerHTML='<button class="primary" id="submit" '+(selected===null?'disabled':'')+'>'+(selected===null?'카드를 선택하세요':selected+'번 '+(t.kind==='final'?'직업으로 확정':'선택 확정'))+'</button>'+(t.kind==='swap'?'<button id="skip">교환하지 않기</button>':'');
    $('submit').onclick=()=>act({slot:selected});if($('skip'))$('skip').onclick=()=>act({slot:null});
